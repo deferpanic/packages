@@ -1,30 +1,28 @@
-
 include ../Makefile.inc
-UPSTREAM=https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz
+UPSTREAM=ftp://xmlsoft.org/libxml2/libxml2-2.9.3.tar.gz
 TARBALL=$(notdir $(UPSTREAM))
 
-all: bin/libgd
+all: bin/libxml2
 
-bin/libgd: build/objs/libgd
+bin/libxml2: build/objs/libxml2
 
-build/objs/libgd: build/Makefile
+build/objs/libxml2: build/Makefile
 	$(MAKE) -C build
 	$(MAKE) install -C build
 
-libgd_CONF_OPTS += \
+CONFIGURE_OPTS += \
+	--with-html-subdir=libxml2 \
 	--with-gnu-ld \
-	--with-png=$(RUMPRUN_PKGS_DIR) \
-	--with-zlib=$(RUMPRUN_SYSROOT) \
-	--without-xpm \
-	--without-jpeg \
-	--without-tiff \
-	--without-vpx \	
+	--without-threads \
+	--without-python \
+	--without-lzma \
+	--without-iconv \
 	--prefix=$(RUMPRUN_PKGS_DIR) \
 	--disable-shared
 
 build/Makefile: build/configure
 	(cd build; \
-	./configure --host=$(RUMPRUN_TOOLCHAIN_TUPLE) $(libgd_CONF_OPTS);)
+	./configure --host=$(RUMPRUN_TOOLCHAIN_TUPLE) $(CONFIGURE_OPTS);)
 
 dl/$(TARBALL):
 	mkdir -p dl
@@ -37,7 +35,7 @@ build/configure: | dl/$(TARBALL)
 .PHONY: clean
 clean:
 	-$(MAKE) -C build clean
-        
+
 .PHONY: distclean
 distclean: clean
 	rm -rf build
