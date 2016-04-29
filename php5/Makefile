@@ -7,18 +7,15 @@ TARBALL=php.tar.bz2
 all: CONFIGURE_OPTS := --with-openssl=$(RUMPRUN_SYSROOT) \
         --with-zlib=$(RUMPRUN_SYSROOT) \
         --with-mysql --with-pdo-mysql \
-        --disable-fileinfo --disable-opcache --without-iconv
+        --disable-fileinfo --disable-opcache --without-iconv \
+        --disable-libxml --disable-dom --disable-simplexml --disable-xml --disable-xmlreader --disable-xmlwriter --without-pear
 
-all: bin/php-cgi bin/php images
+all: bin/php
 
 # "Minimal" build.
 minimal: CONFIGURE_OPTS := --disable-all --enable-cli
 
-minimal: bin/php-cgi bin/php images
-
-bin/php-cgi: build/sapi/cgi/php-cgi
-	mkdir -p bin
-	cp $< $@
+minimal: bin/php
 
 bin/php: build/sapi/cli/php
 	mkdir -p bin
@@ -42,17 +39,10 @@ build/configure: | dl/$(TARBALL)
 	mkdir -p build
 	(cd build && tar -xj --strip-components 1 -f ../dl/$(TARBALL))
 
-.PHONY: images
-images: images/data.iso
-
-images/data.iso: images/data/conf/* images/data/www/* images/data/www/static/*
-	$(RUMPRUN_GENISOIMAGE) -o images/data.iso images/data
-
 .PHONY: clean
 clean:
 	-$(MAKE) -C build clean
 	rm -f bin/*
-	rm -f images/data.iso
 
 .PHONY: distclean
 distclean: clean
